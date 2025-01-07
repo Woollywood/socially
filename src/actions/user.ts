@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { auth, currentUser } from '@clerk/nextjs/server';
+import { revalidatePath } from 'next/cache';
 
 export const syncUser = async () => {
 	try {
@@ -12,12 +13,11 @@ export const syncUser = async () => {
 			return;
 		}
 
-		const existingUser = await prisma.user.findUnique({ where: { clerkId: userId } });
-		if (existingUser) {
-			return existingUser;
+		if (await prisma.user.findUnique({ where: { clerkId: userId } })) {
+			return;
 		}
 
-		const dbUser = await prisma.user.create({
+		return await prisma.user.create({
 			data: {
 				clerkId: userId,
 				name: [user.firstName || '', user.lastName || ''].join(' '),
@@ -26,8 +26,6 @@ export const syncUser = async () => {
 				image: user.imageUrl,
 			},
 		});
-
-		return dbUser;
 	} catch (error) {
 		throw error;
 	}
@@ -38,4 +36,91 @@ export const getUserByClerkId = async (clerkId: string) => {
 		where: { clerkId },
 		include: { _count: { select: { followers: true, following: true, posts: true } } },
 	});
+};
+
+export const getDbUserId = async () => {
+	const { userId: clerkId } = await auth();
+	if (!clerkId) {
+		throw new Error('Unauthenticated');
+	}
+
+	const user = await getUserByClerkId(clerkId);
+	if (!user) {
+		throw new Error('User not found');
+	}
+	return user.id;
+};
+
+export const getFollowsRecommendations = async () => {
+	try {
+		const userId = await getDbUserId();
+		return await prisma.user.findMany({
+			where: {
+				AND: [{ NOT: { id: userId } }],
+			},
+			select: {
+				id: true,
+				name: true,
+				username: true,
+				image: true,
+				_count: {
+					select: {
+						followers: true,
+					},
+				},
+			},
+			take: 3,
+		});
+	} catch (error) {
+		throw error;
+	}
+};
+
+type FollowState =
+	| {
+			status: number;
+			message: string;
+	  }
+	| undefined;
+
+export const toggleFollow = async (prevState: FollowState, formData: FormData): Promise<FollowState> => {
+	const { followingId } = { followingId: formData.get('followingId') as string };
+
+	try {
+		const followerId = await getDbUserId();
+
+		if (followerId === followingId) {
+			return { status: 500, message: 'Your cannot follow yourself' };
+		}
+		const existingFollow = await prisma.follows.findUnique({
+			where: {
+				followerId_followingId: {
+					followerId,
+					followingId,
+				},
+			},
+		});
+
+		if (existingFollow) {
+			await prisma.follows.delete({
+				where: {
+					followerId_followingId: {
+						followerId,
+						followingId,
+					},
+				},
+			});
+			revalidatePath('/');
+			return { status: 200, message: 'User unfollowed successfully' };
+		} else {
+			await prisma.$transaction([
+				prisma.follows.create({ data: { followerId, followingId } }),
+				prisma.notification.create({ data: { type: 'FOLLOW', userId: followingId, creatorId: followerId } }),
+			]);
+			revalidatePath('/');
+			return { status: 200, message: 'User followed successfully' };
+		}
+	} catch (error) {
+		return { status: 500, message: (error as Error).message };
+	}
 };

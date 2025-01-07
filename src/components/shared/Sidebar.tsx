@@ -54,7 +54,6 @@ export const Sidebar: React.FC = async () => {
 							<Avatar className='h-20 w-20 border-2'>
 								<AvatarImage src={user.image || '/avatar.png'} />
 							</Avatar>
-
 							<div className='mt-4 space-y-1'>
 								<h3 className='font-semibold'>{user.name}</h3>
 								<p className='text-sm text-muted-foreground'>{user.username}</p>

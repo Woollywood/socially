@@ -1,9 +1,9 @@
-'use client'; // Error boundaries must be Client Components
+'use client';
 
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Button } from '@/components/ui/button';
 
 import './globals.css';
-import { Button } from '@/components/ui/button';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -17,7 +17,6 @@ const geistMono = Geist_Mono({
 
 export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
 	return (
-		// global-error must include html and body tags
 		<html>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
 				<div className='flex min-h-screen flex-col items-center justify-center'>
