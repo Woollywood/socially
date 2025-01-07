@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/providers/ThemeProvider';
+import { Navbar } from '@/components/shared/Navbar';
+import { Sidebar } from '@/components/shared/Sidebar';
 
 import './globals.css';
-import { Navbar } from '@/components/shared/Navbar';
 
 const geistSans = Geist({
 	variable: '--font-geist-sans',
@@ -36,7 +37,9 @@ export default function RootLayout({
 							<main className='py-8'>
 								<div className='mx-auto max-w-7xl px-4'>
 									<div className='grid grid-cols-1 gap-6 lg:grid-cols-12'>
-										<div className='hidden lg:col-span-3 lg:block'>Sidebar</div>
+										<div className='hidden lg:col-span-3 lg:block'>
+											<Sidebar />
+										</div>
 										<div className='lg:col-span-9'>{children}</div>
 									</div>
 								</div>
