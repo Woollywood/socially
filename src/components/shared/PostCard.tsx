@@ -1,6 +1,6 @@
 'use client';
 
-import React, { startTransition, useActionState, useOptimistic, useState, useTransition } from 'react';
+import React, { startTransition, useActionState, useEffect, useOptimistic, useState, useTransition } from 'react';
 import { Card, CardContent } from '../ui/card';
 import Link from 'next/link';
 import { Avatar, AvatarImage } from '../ui/avatar';
@@ -54,9 +54,17 @@ export const PostCard: React.FC<Props> = ({ post, dbUserId }) => {
 	};
 
 	const [showComments, setShowComments] = useState(false);
-	const [, dispatch, isCommentPending] = useActionState(createComment, undefined);
+	const [state, dispatch, isCommentPending] = useActionState(createComment, undefined);
 	const [comment, setComment] = useState('');
 	const isCommentDisabled = isCommentPending || comment.trim().length === 0;
+	useEffect(() => {
+		if (state?.response) {
+			const { status } = state.response;
+			if (status === 200) {
+				setComment('');
+			}
+		}
+	}, [state]);
 
 	return (
 		<Card className='overflow-hidden'>
