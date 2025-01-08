@@ -10,10 +10,14 @@ import { ImageIcon, Loader2Icon, SendIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import { createPost } from '@/actions/post';
 import { ErrorMessage } from '../ui/form/ErrorMessage';
+import { ImageUpload } from './ImageUpload';
 
 export const CreatePost: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => {
 	const { user } = useUser();
 	const [showImageUpload, setShowImageUpload] = useState(false);
+	const [imageUrl, setImageUrl] = useState('');
+	const hasImageUrl = imageUrl.length > 0;
+	const handleChange = (url: string) => setImageUrl(url);
 
 	const [state, dispatch, isPending] = useActionState(createPost, {});
 
@@ -32,6 +36,7 @@ export const CreatePost: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props
 		<Card {...props}>
 			<CardContent className='pt-6'>
 				<form action={dispatch}>
+					{hasImageUrl && <input type='hidden' name='image' value={imageUrl} />}
 					<div className='flex gap-4 space-y-4'>
 						<Avatar className='h-12 w-12 border-2'>
 							<AvatarImage src={user?.imageUrl || '/avatar.png'} />
@@ -47,6 +52,7 @@ export const CreatePost: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props
 							<ErrorMessage errors={state.errors?.content} />
 						</div>
 					</div>
+					{showImageUpload && <ImageUpload onChange={handleChange} />}
 					<div className='flex items-center justify-between border-t pt-4'>
 						<div className='flex space-x-2'>
 							<Button

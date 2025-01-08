@@ -7,11 +7,13 @@ import { revalidatePath } from 'next/cache';
 
 interface CreatePostFields {
 	content: string;
+	image: string | null;
 }
 
 interface CreatePostState {
 	errors?: {
 		content?: string[];
+		image?: string[];
 	};
 	state?: CreatePostFields;
 	response?: {
@@ -22,13 +24,16 @@ interface CreatePostState {
 
 const createPostSchema = z.object({
 	content: z.string().min(6, { message: 'Content must contain at least 6 characters' }).trim(),
+	image: z.string().nullable(),
 });
 
 export const createPost = async (prevState: CreatePostState, formData: FormData): Promise<CreatePostState> => {
 	try {
 		const formFields = {
 			content: formData.get('content') as string,
+			image: formData.get('image') as string,
 		};
+
 		const authorId = await getDbUserId();
 
 		const { success, data, error } = createPostSchema.safeParse(formFields);
@@ -37,13 +42,14 @@ export const createPost = async (prevState: CreatePostState, formData: FormData)
 			return { errors: error.flatten().fieldErrors, state: formFields };
 		}
 
-		const { content } = data;
+		const { content, image } = data;
 
 		try {
 			await prisma.post.create({
 				data: {
-					content,
 					authorId,
+					content,
+					image,
 				},
 			});
 		} catch (error) {

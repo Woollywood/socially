@@ -6,6 +6,10 @@ import { Navbar } from '@/components/shared/Navbar';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { Toaster } from 'react-hot-toast';
 
+import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
+import { extractRouterConfig } from 'uploadthing/server';
+import { ourFileRouter } from '@/app/api/uploadthing/core';
+
 import './globals.css';
 
 const geistSans = Geist({
@@ -41,7 +45,10 @@ export default function RootLayout({
 										<div className='hidden lg:col-span-3 lg:block'>
 											<Sidebar />
 										</div>
-										<div className='lg:col-span-9'>{children}</div>
+										<div className='lg:col-span-9'>
+											<NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+											{children}
+										</div>
 									</div>
 								</div>
 							</main>
