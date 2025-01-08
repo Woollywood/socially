@@ -5,6 +5,7 @@ import { Avatar, AvatarImage } from '../ui/avatar';
 import moment from 'moment';
 import { HeartIcon, MessageCircleIcon, UserPlusIcon } from 'lucide-react';
 import { getNotifications, markNotificationsAsRead } from '@/actions/notification';
+import Image from 'next/image';
 
 export const Notifications: NextPage = async () => {
 	const notifications = await getNotifications();
@@ -69,7 +70,7 @@ export const Notifications: NextPage = async () => {
 													<div className='mt-2 rounded-md bg-muted/30 p-2 text-sm text-muted-foreground'>
 														<p>{notification.post.content}</p>
 														{notification.post.image && (
-															<img
+															<Image
 																src={notification.post.image}
 																alt='Post content'
 																className='mt-2 h-auto w-full max-w-[200px] rounded-md object-cover'

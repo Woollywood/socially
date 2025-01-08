@@ -76,16 +76,7 @@ export const getFollowsRecommendations = async () => {
 	}
 };
 
-type FollowState =
-	| {
-			status: number;
-			message: string;
-	  }
-	| undefined;
-
-export const toggleFollow = async (prevState: FollowState, formData: FormData): Promise<FollowState> => {
-	const { followingId } = { followingId: formData.get('followingId') as string };
-
+export const toggleFollow = async (followingId: string) => {
 	try {
 		const followerId = await getDbUserId();
 
