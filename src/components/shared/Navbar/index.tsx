@@ -2,11 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { DesktopNavbar } from './DesktopNavbar';
 import { MobileNavbar } from './MobileNavbar';
-import { syncUser } from '@/actions/user';
 
-export const Navbar: React.FC = async () => {
-	await syncUser();
-
+export const Navbar: React.FC = () => {
 	return (
 		<nav className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
 			<div className='mx-auto max-w-7xl px-4'>

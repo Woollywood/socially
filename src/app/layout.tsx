@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/providers/ThemeProvider';
 import { Navbar } from '@/components/shared/Navbar';
 import { Sidebar } from '@/components/shared/Sidebar';
 import { Toaster } from 'react-hot-toast';
+import { syncUser } from '@/actions/user';
 
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import { extractRouterConfig } from 'uploadthing/server';
@@ -27,11 +28,13 @@ export const metadata: Metadata = {
 	description: 'A modern social media application powered by Next.js',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	await syncUser();
+
 	return (
 		<ClerkProvider>
 			<html lang='en' suppressHydrationWarning>
